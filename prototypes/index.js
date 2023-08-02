@@ -1,45 +1,45 @@
-const { kitties } = require('./datasets/kitties');
-const { puppers } = require('./datasets/puppers');
-const { mods } = require('./datasets/mods');
-const { cakes } = require('./datasets/cakes');
-const { classrooms } = require('./datasets/classrooms');
-const { breweries } = require('./datasets/breweries');
-const { nationalParks } = require('./datasets/nationalParks');
-const { weather } = require('./datasets/weather');
-const { boardGames } = require('./datasets/boardGames');
-const { instructors, cohorts } = require('./datasets/turing');
-const { bosses, sidekicks } = require('./datasets/bosses');
-const { constellations, stars } = require('./datasets/astronomy');
-const { weapons, characters } = require('./datasets/ultima');
-const { dinosaurs, humans, movies } = require('./datasets/dinosaurs');
-
-
+const { kitties } = require("./datasets/kitties");
+const { puppers } = require("./datasets/puppers");
+const { mods } = require("./datasets/mods");
+const { cakes } = require("./datasets/cakes");
+const { classrooms } = require("./datasets/classrooms");
+const { breweries } = require("./datasets/breweries");
+const { nationalParks } = require("./datasets/nationalParks");
+const { weather } = require("./datasets/weather");
+const { boardGames } = require("./datasets/boardGames");
+const { instructors, cohorts } = require("./datasets/turing");
+const { bosses, sidekicks } = require("./datasets/bosses");
+const { constellations, stars } = require("./datasets/astronomy");
+const { weapons, characters } = require("./datasets/ultima");
+const { dinosaurs, humans, movies } = require("./datasets/dinosaurs");
 
 // SINGLE DATASETS
 // =================================================================
 
 // DATASET: kitties from ./datasets/kitties
 const kittyPrompts = {
-  orangePetNames() {
+  orangePetNames(kitties) {
     // Return an array of just the names of kitties who are orange e.g.
-        // ['Tiger', 'Snickers']
+    // ['Tiger', 'Snickers']
 
-        /* CODE GOES HERE */
-
+    /* CODE GOES HERE */
+    return kitties
+      .filter((kitty) => kitty.color === "orange")
+      .map((kitty) => kitty.name);
     // Annotation:
     // Write your annotation here as a comment
   },
 
-  sortByAge() {
+  sortByAge(kitties) {
     // Sort the kitties by their age
 
     /* CODE GOES HERE */
-
+    return kitties.sort((a, b) => b.age - a.age);
     // Annotation:
     // Write your annotation here as a comment
   },
 
-  growUp() {
+  growUp(kitties) {
     // Return an array of kitties who have all grown up by 2 years e.g.
     // [{
     //   name: 'Felicia',
@@ -54,7 +54,11 @@ const kittyPrompts = {
     // ...etc]
 
     /* CODE GOES HERE */
-  }
+    return kitties.map((kitty) => {
+      kitty.age += 2;
+      return kitty;
+    });
+  },
 };
 
 // PLEASE READ-----------------------
@@ -63,21 +67,15 @@ const kittyPrompts = {
 // they can perform the same utility
 // for the kitties or puppers datasets, depending on what arguments you send through.
 
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: clubs from ./datasets/clubs
 const clubPrompts = {
-  membersBelongingToClubs() {
+  membersBelongingToClubs(clubs) {
     // Your function should access the clubs data through a parameter (it is being passed as an argument in the test file)
     // Create an object whose keys are the names of people, and whose values are
     // arrays that include the names of the clubs that person is a part of. e.g.
@@ -88,27 +86,25 @@ const clubPrompts = {
     // }
 
     /* CODE GOES HERE */
-
+    return clubs.reduce((acc, cur) => {
+      cur.members.forEach((member) => {
+        if (!acc[member]) {
+          acc[member] = [];
+        }
+        acc[member].push(cur.club);
+      });
+      return acc;
+    }, {});
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: mods from ./datasets/mods
 const modPrompts = {
@@ -121,29 +117,23 @@ const modPrompts = {
     //   { mod: 3, studentsPerInstructor: 10 },
     //   { mod: 4, studentsPerInstructor: 8 }
     // ]
-
     /* CODE GOES HERE */
-
+    return mods.map((mod) => {
+      return {
+        mod: mod.mod,
+        studentsPerInstructor: mod.students / mod.instructors,
+      };
+    });
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: cakes from ./datasets/cakes
 const cakePrompts = {
@@ -155,9 +145,13 @@ const cakePrompts = {
     //    { flavor: 'yellow', inStock: 14 },
     //    ..etc
     // ]
-
     /* CODE GOES HERE */
-
+    return cakes.map((cake) => {
+      return {
+        flavor: cake.cakeFlavor,
+        inStock: cake.inStock,
+      };
+    });
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -182,9 +176,8 @@ const cakePrompts = {
     // },
     // ..etc
     // ]
-
     /* CODE GOES HERE */
-
+    return cakes.filter((cake) => cake.inStock);
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -192,9 +185,11 @@ const cakePrompts = {
   totalInventory() {
     // Return the total amount of cakes in stock e.g.
     // 59
-
     /* CODE GOES HERE */
-
+    return cakes.reduce((acc, cur) => {
+      acc += cur.inStock;
+      return acc;
+    }, 0);
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -203,9 +198,16 @@ const cakePrompts = {
     // Return an array of all unique toppings (no duplicates) needed to bake
     // every cake in the dataset e.g.
     // ['dutch process cocoa', 'toasted sugar', 'smoked sea salt', 'berries', ..etc]
-
     /* CODE GOES HERE */
-
+    let flavors = [];
+    cakes.forEach((cake) => {
+      cake.toppings.forEach((top) => {
+        if (!flavors.includes(top)) {
+          flavors.push(top);
+        }
+      });
+    });
+    return flavors;
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -220,29 +222,27 @@ const cakePrompts = {
     //    'berries': 2,
     //    ...etc
     // }
-
     /* CODE GOES HERE */
-
+    let toppings = this.allToppings()
+    return cakes.reduce((acc, cake) => {
+      cake.toppings.forEach(topping => {
+        if (!acc[topping]) {
+          acc[topping] = 0
+        }
+        acc[topping] += 1
+      })
+      return acc
+    }, {})
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: classrooms from ./datasets/classrooms
 const classPrompts = {
@@ -254,9 +254,7 @@ const classPrompts = {
     //   { roomLetter: 'E', program: 'FE', capacity: 22 },
     //   { roomLetter: 'G', program: 'FE', capacity: 29 }
     // ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -268,21 +266,17 @@ const classPrompts = {
     //   feCapacity: 110,
     //   beCapacity: 96
     // }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
 
   sortByCapacity() {
     // Return the array of classrooms sorted by their capacity (least capacity to greatest)
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -297,52 +291,39 @@ const bookPrompts = {
   removeViolence() {
     // Your function should access the books data through a parameter (it is being passed as an argument in the test file)
     // return an array of all book titles that are not horror or true crime. Eg:
-
     //  ['1984', 'The Great Gatsby', 'Lord of the Flies', 'Harry Potter and the Sorcerer\'s Stone',
     //   'The Hitchhiker\'s Guide to the Galaxy', 'Flowers for Algernon', 'Slaughterhouse-Five',
     //   'The Handmaid\'s Tale', 'The Metamorphosis', 'Brave New World', 'Life of Pi',
     //   'The Curious Incident of the Dog in the Night - Time', 'The Bell Jar',
     //   'Catch-22', 'Treasure Island']
-
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-
   },
   getNewBooks() {
     // return an array of objects containing all books that were
     // published in the 90's and 00's. Inlucde the title and the year Eg:
-
     // [{ title: 'Harry Potter and the Sorcerer\'s Stone', year: 1997 },
     //  { title: 'Life of Pi', year: 2001 },
     //  { title: 'The Curious Incident of the Dog in the Night-Time', year: 2003 }]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
 
   getBooksByYear(books, year) {
     // return an array of objects containing all books that were
-    // published after the specified year without the author or genre data. 
+    // published after the specified year without the author or genre data.
     // The published property should be changed to year for the returned books.
     // e.g. given 1990, return
-
     // [{ title: 'Harry Potter and the Sorcerer\'s Stone', year: 1997 },
     //  { title: 'Life of Pi', year: 2001 },
     //  { title: 'The Curious Incident of the Dog in the Night-Time', year: 2003 }]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
-
+  },
 };
-
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
@@ -356,9 +337,7 @@ const weatherPrompts = {
   getAverageTemps() {
     // return an array of all the average temperatures. Eg:
     // [ 40, 40, 44.5, 43.5, 57, 35, 65.5, 62, 14, 46.5 ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -369,9 +348,7 @@ const weatherPrompts = {
     // [ 'Atlanta, Georgia is sunny.',
     // 'New Orleans, Louisiana is sunny.',
     // 'Raleigh, North Carolina is mostly sunny.' ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -384,13 +361,10 @@ const weatherPrompts = {
     //   humidity: 84,
     //   temperature: { high: 49, low: 38 }
     // }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-
-  }
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -398,7 +372,6 @@ const weatherPrompts = {
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
 
 // DATASET: nationalParks from ./datasets/nationalParks
 
@@ -410,9 +383,7 @@ const nationalParksPrompts = {
     //   parksToVisit: ["Yellowstone", "Glacier", "Everglades"],
     //   parksVisited: ["Rocky Mountain", "Acadia", "Zion"]
     //}
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -425,10 +396,7 @@ const nationalParksPrompts = {
     // { Maine: 'Acadia' },
     // { Utah: 'Zion' },
     // { Florida: 'Everglades' } ]
-
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -448,35 +416,24 @@ const nationalParksPrompts = {
     //   'canyoneering',
     //   'backpacking',
     //   'rock climbing' ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: breweries from ./datasets/breweries
 const breweryPrompts = {
   getBeerCount() {
     // Return the total beer count of all beers for every brewery e.g.
     // 40
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -489,9 +446,7 @@ const breweryPrompts = {
     //  { name: 'Ratio Beerworks', beerCount: 5},
     // ...etc.
     // ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -500,10 +455,7 @@ const breweryPrompts = {
     // Return a number that is the count of beers that the specified
     // brewery has e.g.
     // given 'Ratio Beerworks', return 5
-
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -512,14 +464,11 @@ const breweryPrompts = {
     // Return the beer which has the highest ABV of all beers
     // e.g.
     // { name: 'Barrel Aged Nature\'s Sweater', type: 'Barley Wine', abv: 10.9, ibu: 40 }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
-
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
@@ -531,24 +480,20 @@ const breweryPrompts = {
 
 const boardGamePrompts = {
   listGames(type) {
-    // Return an array of just the names of the games within a specified type. 
+    // Return an array of just the names of the games within a specified type.
     // e.g. given an argument of "strategy", return
     // ["Chess", "Catan", "Checkers", "Pandemic", "Battle Ship", "Azul", "Ticket to Ride"]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
 
   listGamesAlphabetically(type) {
-    // Return an array of just the names of the games within a specified 
-    // type, sorted alphabetically. 
+    // Return an array of just the names of the games within a specified
+    // type, sorted alphabetically.
     // e.g. given an argument of "childrens", return
     // ["Candy Land", "Connect Four", "Operation", "Trouble"]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -557,9 +502,7 @@ const boardGamePrompts = {
     // Return an object which is the highest rated game within the specified type.
     // e.g. given the argument of 'party', return
     // { name: 'Codenames', rating: 7.4, maxPlayers: 8 },
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -568,9 +511,7 @@ const boardGamePrompts = {
     // Return the average score for the specified type.
     // e.g. given the argument of "strategy", return 7
     // note: do not worry about rounding your result.
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -580,40 +521,23 @@ const boardGamePrompts = {
     // and maximum number of players.
     // e.g. given the arguments of "strategy" and 2, return 6.16666666667
     // note: do not worry about rounding your result.
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DOUBLE DATASETS
 // =================================================================
@@ -627,9 +551,7 @@ const turingPrompts = {
     //  { name: 'Pam', studentCount: 21 },
     //  { name: 'Robbie', studentCount: 18 }
     // ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -640,9 +562,7 @@ const turingPrompts = {
     // cohort1806: 9,
     // cohort1804: 10.5
     // }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -661,9 +581,7 @@ const turingPrompts = {
     //     Christie: [1, 2, 3, 4],
     //     Will: [1, 2, 3, 4]
     //   }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -677,29 +595,17 @@ const turingPrompts = {
     //   javascript: [ 'Travis', 'Louisa', 'Christie', 'Will' ],
     //   recursion: [ 'Pam', 'Leta' ]
     // }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: bosses, sidekicks from ./datasets/bosses
 const bossPrompts = {
@@ -711,29 +617,17 @@ const bossPrompts = {
     //   { bossName: 'Ursula', sidekickLoyalty: 20 },
     //   { bossName: 'Scar', sidekickLoyalty: 16 }
     // ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: constellations, stars } from ./datasets/astronomy
 const astronomyPrompts = {
@@ -766,9 +660,7 @@ const astronomyPrompts = {
     //     color: 'blue'
     //   }
     // ]
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -783,9 +675,7 @@ const astronomyPrompts = {
     //   orange: [{obj}],
     //   red: [{obj}]
     // }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -804,71 +694,42 @@ const astronomyPrompts = {
     //    "The Plow",
     //    "Orion",
     //    "The Little Dipper" ]
-
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: charaters, weapons from ./datasets/ultima
 const ultimaPrompts = {
   totalDamage() {
-
     // Return the sum of the amount of damage for all the weapons that our characters can use
     // Answer => 113
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
 
   charactersByTotal() {
-
     // Return the sum damage and total range for each character as an object.
     // ex: [ { Avatar: { damage: 27, range: 24 }, { Iolo: {...}, ...}
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: dinosaurs, humans, movies from ./datasets/dinosaurs
 const dinosaurPrompts = {
@@ -882,9 +743,7 @@ const dinosaurPrompts = {
     //   'Jurassic World': 11,
     //   'Jurassic World: Fallen Kingdom': 18
     // }
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -914,9 +773,7 @@ const dinosaurPrompts = {
           }
       }
     */
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -946,9 +803,7 @@ const dinosaurPrompts = {
         imdbStarMeterRating: 0
       }]
     */
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -968,12 +823,10 @@ const dinosaurPrompts = {
       { name: 'Chris Pratt', ages: [ 36, 39 ] },
       { name: 'Bryce Dallas Howard', ages: [ 34, 37 ] } ]
     */
-
     /* CODE GOES HERE */
-
     // Annotation:
     // Write your annotation here as a comment
-  }
+  },
 };
 
 module.exports = {
